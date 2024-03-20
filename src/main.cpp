@@ -39,16 +39,6 @@ const char szHtml[] = R"(
 </html>
 )";
 
-std::string readFile(const std::string& fname) {
-  std::ifstream file(fname);
-  if (!file.is_open()) {
-	printf("main.cpp :: Could not open / read '%s'\n", fname);
-	return "";
-  }
-  std::string content((std::istreambuf_iterator<char>(file)), (std::istreambuf_iterator<char>()));
-  return content;
-}
-
 int main(const int argc, const char* argv[]) {
   WSAData wsaData;
   WORD DllVersion MAKEWORD(2, 1);
