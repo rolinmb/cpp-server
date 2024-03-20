@@ -76,6 +76,7 @@ int main(const int argc, const char* argv[]) {
       printf("main.cpp :: Error occured while receiving data from client\n");
       continue;
     }
+	printf("main.cpp :: Server has received raw client request\n");
     std::string httpRequest(buffer, bytesReceived);
     if (httpRequest.find("GET / HTTP") != std::string::npos) {
       send(clientSocket, szResponse, strlen(szResponse), 0);
@@ -86,25 +87,6 @@ int main(const int argc, const char* argv[]) {
     printf("main.cpp :: Server has sent HTML response to client GET request\n");
     fflush(stdout);
     closesocket(clientSocket);
-    /*send(clientSocket, szResponse, strlen(szResponse), 0);
-    const char* p = szHtml;
-    int remaining = strlen(szHtml);
-    while (remaining > 0) {
-      int sentBytes = send(clientSocket, p, remaining, 0);
-      if (sentBytes <= 0) {
-	if (sentBytes == 0) {
-          printf("main.cpp :: Client disconnected from server unexpectedly\n");
-        } else {
-	  printf("main.cpp :: Error occured while sending data to client\n");
-        }
-	fflush(stdout);
-	break;
-      }
-      p += sentBytes;
-      remaining -= sentBytes;
-    }
-    printf("main.cpp :: Server has responded to client socket GET request with HTML content\n");
-    fflush(stdout);*/
   }
   closesocket(server);
   WSACleanup();
