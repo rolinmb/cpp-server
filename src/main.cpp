@@ -11,7 +11,7 @@
 
 #define PORT 8080
 
-const char szResponse[] = "";
+const char szResponse[] = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n";
 const char szPage[] = R"(
 <!DOCTYPE HTML>
 <html>
@@ -19,7 +19,7 @@ const char szPage[] = R"(
     <title>Server Response From main.c</title>
   </head>
   <body>
-    <h1>This is the response from the server in main.c</h1>
+    <h1>This HTML content is the server response from main.cpp</h1>
   </body>
 </html>
 )";
@@ -44,7 +44,7 @@ int main(const int argc, const char* argv[]) {
   if (listen(server, SOMAXCONN) == SOCKET_ERROR) {
     ExitProcess(EXIT_FAILURE);
   }
-  printf("main.c :: Server started on port %d\n", PORT);
+  printf("main.cpp :: Server started on port %d\n", PORT);
   fflush(stdout);
   while (true) {
     SOCKADDR_IN clientAddr;
@@ -53,18 +53,35 @@ int main(const int argc, const char* argv[]) {
     if (clientSocket == INVALID_SOCKET) {
       continue;
     }
-    printf("main.c :: Client connected to server\n");
+    printf("main.cpp :: Client connected to server\n");
     fflush(stdout);
-    send(clientSocket, szResponse, strlen(szResponse), 0);
+    char buffer[1024];
+    int bytesReceived = recv(clientSocket, buffer, 1024, 0);
+    if (bytesReceived == SOCKET_ERROR) {
+      printf("main.cpp :: Error occured while receiving data from client\n");
+      continue;
+    }
+    std::string httpRequest(buffer, bytesReceived);
+    if (httpRequest.find("GET / HTTP") != std::string::npos) {
+      send(clientSocket, szResponse, strlen(szResponse), 0);
+      send(clientSocket, szPage, strlen(szPage), 0);
+    } else {
+      const char* notFoundResponse = "HTTP/1.1 404 Not Found\r\n\r\n";
+      send(clientSocket, notFoundResponse, strlen(notFoundResponse), 0);
+    }
+    printf("main.cpp :: Server has sent HTML response to client GET request\n");
+    fflush(stdout);
+    closesocket(clientSocket);
+    /*send(clientSocket, szResponse, strlen(szResponse), 0);
     const char* p = szPage;
     int remaining = strlen(szPage);
     while (remaining > 0) {
       int sentBytes = send(clientSocket, p, remaining, 0);
       if (sentBytes <= 0) {
 	if (sentBytes == 0) {
-          printf("main.c :: Client disconnected from server unexpectedly\n");
+          printf("main.cpp :: Client disconnected from server unexpectedly\n");
         } else {
-	  printf("main.c :: Error occured while sending data to client\n");
+	  printf("main.cpp :: Error occured while sending data to client\n");
         }
 	fflush(stdout);
 	break;
@@ -72,8 +89,8 @@ int main(const int argc, const char* argv[]) {
       p += sentBytes;
       remaining -= sentBytes;
     }
-    printf("main.c :: Server has responded to client socket GET request with HTML content\n");
-    fflush(stdout);
+    printf("main.cpp :: Server has responded to client socket GET request with HTML content\n");
+    fflush(stdout);*/
   }
   closesocket(server);
   WSACleanup();
