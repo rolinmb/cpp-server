@@ -11,8 +11,9 @@
 
 #define PORT 8080
 
-const char szResponse[] = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n";
-const char szPage[] = R"(
+const char* szResponse = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n";
+const char* notFoundResponse = "HTTP/1.1 404 Not Found\r\n\r\n";
+const char szHtml[] = R"(
 <!DOCTYPE HTML>
 <html>
   <head>
@@ -37,6 +38,16 @@ const char szPage[] = R"(
   </script>
 </html>
 )";
+
+std::string readFile(const std::string& fname) {
+  std::ifstream file(fname);
+  if (!file.is_open()) {
+	printf("main.cpp :: Could not open / read '%s'\n", fname);
+	return "";
+  }
+  std::string content((std::istreambuf_iterator<char>(file)), (std::istreambuf_iterator<char>()));
+  return content;
+}
 
 int main(const int argc, const char* argv[]) {
   WSAData wsaData;
@@ -78,17 +89,16 @@ int main(const int argc, const char* argv[]) {
     std::string httpRequest(buffer, bytesReceived);
     if (httpRequest.find("GET / HTTP") != std::string::npos) {
       send(clientSocket, szResponse, strlen(szResponse), 0);
-      send(clientSocket, szPage, strlen(szPage), 0);
+      send(clientSocket, szHtml, strlen(szHtml), 0);
     } else {
-      const char* notFoundResponse = "HTTP/1.1 404 Not Found\r\n\r\n";
       send(clientSocket, notFoundResponse, strlen(notFoundResponse), 0);
     }
     printf("main.cpp :: Server has sent HTML response to client GET request\n");
     fflush(stdout);
     closesocket(clientSocket);
     /*send(clientSocket, szResponse, strlen(szResponse), 0);
-    const char* p = szPage;
-    int remaining = strlen(szPage);
+    const char* p = szHtml;
+    int remaining = strlen(szHtml);
     while (remaining > 0) {
       int sentBytes = send(clientSocket, p, remaining, 0);
       if (sentBytes <= 0) {

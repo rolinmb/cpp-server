@@ -1,0 +1,23 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>Server Response From main.cpp</title>
+  </head>
+  <body>
+    <h1>This HTML content is the server response from main.cpp</h1>
+    <button id="click-btn"></button>
+  </body>
+  <script>
+    var count = 0;
+    function handleClick() {
+      count += 1;
+      let btn = document.getElementById("click-btn");
+      btn.innerHTML = count.toString();
+    }
+    window.onload = function() {
+      let btn = document.getElementById("click-btn");
+      btn.innerHTML = count.toString();
+      btn.addEventListener("click", handleClick);
+    };
+  </script>
+</html>
