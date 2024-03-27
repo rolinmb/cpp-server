@@ -71,10 +71,12 @@ int main(const int argc, const char* argv[]) {
   WSAData wsaData;
   WORD DllVersion MAKEWORD(2, 1);
   if (WSAStartup(DllVersion, &wsaData) != 0) {
+	printf("main.cpp :: WSAStartup failed\n");
     ExitProcess(EXIT_FAILURE);
   }
   SOCKET server = socket(AF_INET, SOCK_STREAM, 0);
   if (server == INVALID_SOCKET) {
+	printf("main.cpp :: Server socket instantiation failed\n");
     ExitProcess(EXIT_FAILURE);
   }
   SOCKADDR_IN serverAddr;
@@ -82,9 +84,11 @@ int main(const int argc, const char* argv[]) {
   serverAddr.sin_port = htons(PORT);
   serverAddr.sin_family = AF_INET;
   if (bind(server, (SOCKADDR*)&serverAddr, sizeof(serverAddr)) == SOCKET_ERROR) {
+	printf("main.cpp :: Server socket binding failed\n");
     ExitProcess(EXIT_FAILURE);
   }
   if (listen(server, SOMAXCONN) == SOCKET_ERROR) {
+	printf("main.cpp Server socket failed to start listening\n");
     ExitProcess(EXIT_FAILURE);
   }
   printf("main.cpp :: Server started on port %d\n", PORT);
